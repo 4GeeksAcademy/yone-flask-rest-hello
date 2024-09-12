@@ -4,6 +4,8 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 import os
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
+
 from flask_swagger import swagger
 from api.utils import APIException, generate_sitemap
 from api.models import db
@@ -18,6 +20,17 @@ static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../public/')
 app = Flask(__name__)
 app.url_map.strict_slashes = False
+
+# Configuración de la clave secreta JWT
+app.config['JWT_SECRET_KEY'] = 'super-secret-key'  # Cambia esto por una clave más segura
+
+# Inicializar JWTManager
+jwt = JWTManager(app)
+
+
+
+
+
 
 # database condiguration
 db_url = os.getenv("DATABASE_URL")
