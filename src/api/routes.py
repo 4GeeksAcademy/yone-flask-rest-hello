@@ -5,14 +5,28 @@ from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
+from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_restx import Api, Resource, fields  # Importa Flask-RESTX
 
 api = Blueprint('api', __name__)
 
 # Allow CORS requests to this API
 CORS(api)
 
+bcrypt = Bcrypt()
+
+# Inicializa la API con Flask-RESTX
+api_restx = Api(api, version='1.0', title='API de Usuarios',
+                description='Documentación de API para la gestión de usuarios')
+
+# Define el modelo de Usuario para la documentación de Swagger
+user_model = api_restx.model('User', {
+    'username': fields.String(required=True, description='Nombre de usuario'),
+    'email': fields.String(required=True, description='Correo electrónico'),
+    'password': fields.String(required=True, description='Contraseña')
+})
 
 @api.route('/hello', methods=['POST', 'GET'])
 def handle_hello():
@@ -23,23 +37,19 @@ def handle_hello():
 
 @api.route('/register', methods=['POST'])
 def register():
-    email = request.json.get('email', None)
-    password = request.json.get('password', None)
+    data = request.json
+    name = data.get('name')
+    email = data.get('email')
+    password = generate_password_hash(data.get('password'))
 
-    if not email or not password:
-        return jsonify({"msg": "Email and password are required"}), 400
+    # Verifica que el email esté presente
+    if not email:
+        return jsonify({"error": "El campo email no puede estar vacío"}), 400
 
-    user = User.query.filter_by(email=email).first()
-    if user:
-        return jsonify({"msg": "Email already registered"}), 400
-
-    hashed_password = generate_password_hash(password)
-    new_user = User(email=email, password=hashed_password, is_active=True)
-
+    new_user = User(name=name, email=email, password=password, is_active=True)
     db.session.add(new_user)
     db.session.commit()
-
-    return jsonify({"msg": "User registered successfully"}), 201
+    return jsonify({"message": "Usuario registrado con éxito"})
 
 @api.route('/login', methods=['POST'])
 def login():
