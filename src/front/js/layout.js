@@ -24,7 +24,7 @@ const Layout = () => {
         <div>
             <BrowserRouter basename={basename}>
                 <ScrollToTop>
-                <PrivateRoute><Navbar /></PrivateRoute>
+                    <PrivateRoute><Navbar /></PrivateRoute>
                     <Routes>
                         <Route element={<HomeReg />} path="/" />
                         <Route element={<PrivateRoute><Dashboard/></PrivateRoute>} path="/dashboard"/>

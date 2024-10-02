@@ -5,7 +5,6 @@ import { HomeNotLogHeader } from "../component/HomeNotLogHeader.jsx";
 import background from "../../img/fondo.jpg";
 
 export const HomeReg = () => {
-    const { store, actions } = useContext(Context);
 
     // useEffect(() => {
     //     actions.getReviews();
